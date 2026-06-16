@@ -80,17 +80,32 @@
                         <div class="lab_section_body">
                             <group>
                                 <group>
-                                    <field name="college"/>
+                                    <field name="institute"/>
                                     <field name="department"/>
+                                    <field name="lab_type"/>
                                     <field name="lab_name"/>
-                                    <field name="num_desktops"/>
                                 </group>
                                 <group>
+                                    <field name="academic_start_date"/>
+                                    <field name="semester"/>
+                                    <field name="lab_start_time"/>
+                                    <field name="lab_end_time"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group>
+                                    <field name="num_desktops"/>
                                     <field name="incharge_name"/>
+                                </group>
+                                <group>
                                     <field name="contact_info"/>
+                                    <field name="academic_year"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group>
                                     <field name="week_start_date"/>
                                     <field name="week_end_date"/>
-                                    <field name="academic_year"/>
                                 </group>
                             </group>
                         </div>
@@ -189,8 +204,9 @@
                   decoration-success="state == 'reviewed'"
                   decoration-info="state == 'submitted'">
                 <field name="lab_name"/>
-                <field name="college"/>
+                <field name="institute"/>
                 <field name="department"/>
+                <field name="lab_type"/>
                 <field name="incharge_name"/>
                 <field name="week_start_date"/>
                 <field name="week_end_date"/>
@@ -214,14 +230,15 @@
             <search>
                 <field name="lab_name"/>
                 <field name="department"/>
-                <field name="college"/>
+                <field name="institute"/>
                 <field name="incharge_name"/>
                 <filter string="Draft" name="draft" domain="[('state','=','draft')]"/>
                 <filter string="Submitted" name="submitted" domain="[('state','=','submitted')]"/>
                 <filter string="Reviewed" name="reviewed" domain="[('state','=','reviewed')]"/>
                 <separator/>
-                <filter string="College" name="group_college" context="{'group_by': 'college'}"/>
+                <filter string="Institute" name="group_institute" context="{'group_by': 'institute'}"/>
                 <filter string="Department" name="group_department" context="{'group_by': 'department'}"/>
+                <filter string="Lab Type" name="group_lab_type" context="{'group_by': 'lab_type'}"/>
                 <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
                 <filter string="Academic Year" name="group_academic_year" context="{'group_by': 'academic_year'}"/>
             </search>
@@ -237,8 +254,9 @@
         <field name="arch" type="xml">
             <kanban default_group_by="state" class="o_kanban_small_column">
                 <field name="lab_name"/>
-                <field name="college"/>
+                <field name="institute"/>
                 <field name="department"/>
+                <field name="lab_type"/>
                 <field name="filled_slots"/>
                 <field name="free_slots"/>
                 <field name="utilization_pct"/>
@@ -260,11 +278,14 @@
                                     <t t-esc="record.state.value"/>
                                 </span>
                             </div>
-                            <div class="lab_kanban_college">
-                                <i class="fa fa-university"/> <t t-esc="record.college.value"/>
+                            <div class="lab_kanban_institute">
+                                <i class="fa fa-university"/> <t t-esc="record.institute.value"/>
                             </div>
                             <div class="lab_kanban_dept">
                                 <i class="fa fa-tags"/> <t t-esc="record.department.value"/>
+                            </div>
+                            <div class="lab_kanban_type">
+                                <i class="fa fa-flask"/> <t t-esc="record.lab_type.value"/>
                             </div>
                             <div class="lab_kanban_stats">
                                 <div class="lab_kstat">
