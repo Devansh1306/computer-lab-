@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_lab_survey_form" name="Computer Lab Survey Form">
+        <t t-call="website.layout">
+            <div id="wrap" class="lab_public_page">
+                <section class="lab_public_header">
+                    <div class="container">
+                        <div class="lab_public_header_inner">
+                            <div>
+                                <h1>Computer Lab Utilization Survey</h1>
+                                <p>Submit weekly lab availability, occupied slots, and infrastructure notes without an Odoo login.</p>
+                            </div>
+                            <div class="lab_public_header_stats">
+                                <span>Mon-Fri</span>
+                                <strong>25 Slots</strong>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="container lab_public_container">
+                    <t t-if="errors">
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                <t t-foreach="errors" t-as="error">
+                                    <li><t t-esc="error"/></li>
+                                </t>
+                            </ul>
+                        </div>
+                    </t>
+
+                    <form action="/computer-lab-survey/submit" method="post" class="lab_public_form">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                        <div class="lab_public_card">
+                            <div class="lab_public_card_head">
+                                <i class="fa fa-building-o"/>
+                                <h2>Lab Details</h2>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="college">College / Institution</label>
+                                    <select class="form-select" id="college" name="college" required="required">
+                                        <option value="">Select college...</option>
+                                        <t t-foreach="college_options" t-as="option">
+                                            <option t-att-value="option[0]" t-att-selected="'selected' if form_values.get('college') == option[0] else None">
+                                                <t t-esc="option[1]"/>
+                                            </option>
+                                        </t>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="department">Department</label>
+                                    <input class="form-control" id="department" name="department" required="required" t-att-value="form_values.get('department', '')"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="lab_name">Lab Name / Number</label>
+                                    <input class="form-control" id="lab_name" name="lab_name" required="required" t-att-value="form_values.get('lab_name', '')"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="num_desktops">Number of Desktops</label>
+                                    <input class="form-control" id="num_desktops" name="num_desktops" type="number" min="1" required="required" t-att-value="form_values.get('num_desktops', '30')"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="incharge_name">Lab In-charge Name</label>
+                                    <input class="form-control" id="incharge_name" name="incharge_name" required="required" t-att-value="form_values.get('incharge_name', '')"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="contact_info">Contact Email / Phone</label>
+                                    <input class="form-control" id="contact_info" name="contact_info" required="required" t-att-value="form_values.get('contact_info', '')"/>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label" for="week_start_date">Week Start Date</label>
+                                    <input class="form-control" id="week_start_date" name="week_start_date" type="date" required="required" t-att-value="form_values.get('week_start_date', '')"/>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label" for="week_end_date">Week End Date</label>
+                                    <input class="form-control" id="week_end_date" name="week_end_date" type="date" required="required" t-att-value="form_values.get('week_end_date', '')"/>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label" for="academic_year">Academic Year</label>
+                                    <select class="form-select" id="academic_year" name="academic_year" required="required">
+                                        <t t-foreach="academic_year_options" t-as="option">
+                                            <option t-att-value="option[0]" t-att-selected="'selected' if (form_values.get('academic_year') or default_academic_year) == option[0] else None">
+                                                <t t-esc="option[1]"/>
+                                            </option>
+                                        </t>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lab_public_card">
+                            <div class="lab_public_card_head">
+                                <i class="fa fa-calendar-check-o"/>
+                                <h2>Weekly Slot Schedule</h2>
+                            </div>
+                            <div class="lab_public_legend">
+                                <span><i class="lab_status_dot status_class"></i>Class</span>
+                                <span><i class="lab_status_dot status_exam"></i>Exam</span>
+                                <span><i class="lab_status_dot status_workshop"></i>Workshop</span>
+                                <span><i class="lab_status_dot status_free"></i>Free</span>
+                                <span><i class="lab_status_dot status_maintenance"></i>Maintenance</span>
+                            </div>
+                            <div class="lab_slot_matrix">
+                                <div class="lab_slot_matrix_head">Day</div>
+                                <t t-foreach="slot_labels" t-as="slot_label">
+                                    <div class="lab_slot_matrix_head"><t t-esc="slot_label"/></div>
+                                </t>
+                                <t t-foreach="days" t-as="day">
+                                    <div class="lab_slot_day"><t t-esc="day[1]"/></div>
+                                    <t t-foreach="slot_indices" t-as="slot_index">
+                                        <t t-set="slot_key" t-value="'%s_%s' % (day[0], slot_index)"/>
+                                        <div class="lab_slot_cell" t-att-data-slot="slot_key">
+                                            <select class="form-select form-select-sm lab_status_select" t-att-name="'status_%s' % slot_key">
+                                                <t t-foreach="status_options" t-as="status">
+                                                    <option t-att-value="status[0]"><t t-esc="status[1]"/></option>
+                                                </t>
+                                            </select>
+                                            <div class="lab_slot_details">
+                                                <input class="form-control form-control-sm" t-att-name="'course_%s' % slot_key" placeholder="Course / subject"/>
+                                                <input class="form-control form-control-sm" t-att-name="'batch_%s' % slot_key" placeholder="Batch / class"/>
+                                                <input class="form-control form-control-sm" t-att-name="'students_%s' % slot_key" type="number" min="0" placeholder="Students"/>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </t>
+                            </div>
+                        </div>
+
+                        <div class="lab_public_card">
+                            <div class="lab_public_card_head">
+                                <i class="fa fa-info-circle"/>
+                                <h2>Availability Notes</h2>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="sharable">Free Slots Shareable?</label>
+                                    <select class="form-select" id="sharable" name="sharable">
+                                        <option value="">Select...</option>
+                                        <t t-foreach="sharable_options" t-as="option">
+                                            <option t-att-value="option[0]" t-att-selected="'selected' if form_values.get('sharable') == option[0] else None">
+                                                <t t-esc="option[1]"/>
+                                            </option>
+                                        </t>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="booking_notice">Advance Booking Notice</label>
+                                    <select class="form-select" id="booking_notice" name="booking_notice">
+                                        <option value="">Select...</option>
+                                        <t t-foreach="booking_notice_options" t-as="option">
+                                            <option t-att-value="option[0]" t-att-selected="'selected' if form_values.get('booking_notice') == option[0] else None">
+                                                <t t-esc="option[1]"/>
+                                            </option>
+                                        </t>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="special_conditions">Special Conditions / Restrictions</label>
+                                    <textarea class="form-control" id="special_conditions" name="special_conditions" rows="4"><t t-esc="form_values.get('special_conditions', '')"/></textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="infra_issues">Infrastructure Issues / Upgrade Requirements</label>
+                                    <textarea class="form-control" id="infra_issues" name="infra_issues" rows="4"><t t-esc="form_values.get('infra_issues', '')"/></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="lab_public_actions">
+                            <button type="submit" class="btn btn-primary btn-lg">Submit Survey</button>
+                        </div>
+                    </form>
+                </section>
+
+                <script>
+                    document.addEventListener("change", function (event) {
+                        if (!event.target.classList.contains("lab_status_select")) {
+                            return;
+                        }
+                        const cell = event.target.closest(".lab_slot_cell");
+                        if (!cell) {
+                            return;
+                        }
+                        cell.dataset.status = event.target.value;
+                    });
+                    document.querySelectorAll(".lab_status_select").forEach(function (select) {
+                        select.dispatchEvent(new Event("change", { bubbles: true }));
+                    });
+                </script>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_lab_survey_thank_you" name="Computer Lab Survey Thank You">
+        <t t-call="website.layout">
+            <div id="wrap" class="lab_public_page">
+                <section class="container lab_public_thanks">
+                    <div class="lab_public_success_icon">
+                        <i class="fa fa-check"/>
+                    </div>
+                    <h1>Survey Submitted</h1>
+                    <p>Your weekly utilization survey for <strong><t t-esc="survey.lab_name"/></strong> has been submitted.</p>
+                    <div class="lab_public_summary">
+                        <span><strong><t t-esc="survey.filled_slots"/></strong> filled slots</span>
+                        <span><strong><t t-esc="survey.free_slots"/></strong> free slots</span>
+                        <span><strong><t t-esc="survey.utilization_pct"/>%</strong> utilization</span>
+                    </div>
+                    <a href="/computer-lab-survey" class="btn btn-primary">Submit Another Survey</a>
+                </section>
+            </div>
+        </t>
+    </template>
+
+    <record id="website_menu_computer_lab_survey" model="website.menu">
+        <field name="name">Lab Survey</field>
+        <field name="url">/computer-lab-survey</field>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence">45</field>
+    </record>
+</odoo>

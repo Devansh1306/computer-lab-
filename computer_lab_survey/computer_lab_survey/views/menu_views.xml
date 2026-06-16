@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Root Menu -->
+    <menuitem id="menu_computer_lab_root"
+              name="Lab Survey"
+              sequence="90"
+              web_icon="computer_lab_survey,static/src/img/icon.png"/>
+
+    <!-- Main Surveys Menu -->
+    <menuitem id="menu_computer_lab_survey"
+              name="Utilization Surveys"
+              parent="menu_computer_lab_root"
+              action="action_computer_lab_survey"
+              sequence="10"/>
+
+</odoo>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Standalone Slot List View -->
+    <record id="view_computer_lab_slot_list" model="ir.ui.view">
+        <field name="name">computer.lab.slot.list</field>
+        <field name="model">computer.lab.slot</field>
+        <field name="arch" type="xml">
+            <list string="Lab Slots"
+                  decoration-success="status == 'class'"
+                  decoration-info="status == 'exam'"
+                  decoration-warning="status == 'workshop'"
+                  decoration-danger="status == 'maintenance'"
+                  decoration-muted="status == 'free'">
+                <field name="survey_id"/>
+                <field name="day"/>
+                <field name="time_slot"/>
+                <field name="status" widget="badge"
+                       decoration-success="status == 'class'"
+                       decoration-info="status == 'exam'"
+                       decoration-warning="status == 'workshop'"
+                       decoration-danger="status == 'maintenance'"
+                       decoration-muted="status == 'free'"/>
+                <field name="course_subject"/>
+                <field name="batch_class"/>
+                <field name="student_count"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>

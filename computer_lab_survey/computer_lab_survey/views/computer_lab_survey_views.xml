@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════
+         FORM VIEW  — Computer Lab Survey
+    ══════════════════════════════════════════════════════ -->
+    <record id="view_computer_lab_survey_form" model="ir.ui.view">
+        <field name="name">computer.lab.survey.form</field>
+        <field name="model">computer.lab.survey</field>
+        <field name="arch" type="xml">
+            <form string="Computer Lab Utilization Survey" class="o_lab_survey_form">
+                <header>
+                    <button name="action_submit" string="Submit Report" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_review" string="Mark as Reviewed" type="object"
+                            class="btn-primary" invisible="state != 'submitted'"/>
+                    <button name="action_reset_draft" string="Reset to Draft" type="object"
+                            invisible="state == 'draft'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,reviewed"/>
+                </header>
+
+                <sheet>
+                    <!-- ── Hero banner ── -->
+                    <div class="lab_survey_hero">
+                        <div class="lab_survey_hero_icon">
+                            <i class="fa fa-desktop fa-2x"/>
+                        </div>
+                        <div class="lab_survey_hero_text">
+                            <h2>Computer Lab Utilization Survey</h2>
+                            <p>Weekly schedule &#160;·&#160; Mon to Fri &#160;·&#160; 8:00 am – 6:00 pm &#160;·&#160; 5 slots × 2 hrs</p>
+                        </div>
+                    </div>
+
+                    <!-- ── Live Stats Row ── -->
+                    <div class="lab_stats_row">
+                        <div class="lab_stat_card lab_stat_filled">
+                            <div class="lab_stat_icon"><i class="fa fa-check-circle"/></div>
+                            <div class="lab_stat_body">
+                                <div class="lab_stat_val">
+                                    <field name="filled_slots" readonly="1"/>
+                                </div>
+                                <div class="lab_stat_label">Slots Filled</div>
+                            </div>
+                        </div>
+                        <div class="lab_stat_card lab_stat_free">
+                            <div class="lab_stat_icon"><i class="fa fa-calendar-o"/></div>
+                            <div class="lab_stat_body">
+                                <div class="lab_stat_val">
+                                    <field name="free_slots" readonly="1"/>
+                                </div>
+                                <div class="lab_stat_label">Free Slots</div>
+                            </div>
+                        </div>
+                        <div class="lab_stat_card lab_stat_util">
+                            <div class="lab_stat_icon"><i class="fa fa-pie-chart"/></div>
+                            <div class="lab_stat_body">
+                                <div class="lab_stat_val">
+                                    <field name="utilization_pct" readonly="1" widget="percentage"/>
+                                </div>
+                                <div class="lab_stat_label">Utilization</div>
+                            </div>
+                        </div>
+                        <div class="lab_stat_card lab_stat_desktops">
+                            <div class="lab_stat_icon"><i class="fa fa-laptop"/></div>
+                            <div class="lab_stat_body">
+                                <div class="lab_stat_val">
+                                    <field name="num_desktops" readonly="1"/>
+                                </div>
+                                <div class="lab_stat_label">Desktops</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Section 1: Lab &amp; Department Details ── -->
+                    <div class="lab_section_card">
+                        <div class="lab_section_header">
+                            <i class="fa fa-building-o"/> &#160;Lab &amp; Department Details
+                        </div>
+                        <div class="lab_section_body">
+                            <group>
+                                <group>
+                                    <field name="college"/>
+                                    <field name="department"/>
+                                    <field name="lab_name"/>
+                                    <field name="num_desktops"/>
+                                </group>
+                                <group>
+                                    <field name="incharge_name"/>
+                                    <field name="contact_info"/>
+                                    <field name="week_start_date"/>
+                                    <field name="week_end_date"/>
+                                    <field name="academic_year"/>
+                                </group>
+                            </group>
+                        </div>
+                    </div>
+
+                    <!-- ── Section 2: Slot Schedule ── -->
+                    <div class="lab_section_card">
+                        <div class="lab_section_header">
+                            <i class="fa fa-table"/> &#160;Weekly Slot Schedule — Mark Each Slot
+                        </div>
+                        <div class="lab_section_body">
+                            <!-- Legend -->
+                            <div class="lab_legend">
+                                <div class="lab_leg_item">
+                                    <span class="lab_dot" style="background:#639922;"/>
+                                    <span>Scheduled Class</span>
+                                </div>
+                                <div class="lab_leg_item">
+                                    <span class="lab_dot" style="background:#185FA5;"/>
+                                    <span>Exam / Practical</span>
+                                </div>
+                                <div class="lab_leg_item">
+                                    <span class="lab_dot" style="background:#854F0B;"/>
+                                    <span>Workshop / Event</span>
+                                </div>
+                                <div class="lab_leg_item">
+                                    <span class="lab_dot" style="background:#B4B2A9;"/>
+                                    <span>Free / Available</span>
+                                </div>
+                                <div class="lab_leg_item">
+                                    <span class="lab_dot" style="background:#E24B4A;"/>
+                                    <span>Maintenance / Closed</span>
+                                </div>
+                            </div>
+
+                            <!-- Slot Grid -->
+                            <field name="slot_ids" nolabel="1">
+                                <list string="Slots" editable="bottom"
+                                      decoration-success="status == 'class'"
+                                      decoration-info="status == 'exam'"
+                                      decoration-warning="status == 'workshop'"
+                                      decoration-danger="status == 'maintenance'">
+                                    <field name="day" readonly="1"/>
+                                    <field name="time_slot" readonly="1"/>
+                                    <field name="status" widget="badge"
+                                           decoration-success="status == 'class'"
+                                           decoration-info="status == 'exam'"
+                                           decoration-warning="status == 'workshop'"
+                                           decoration-danger="status == 'maintenance'"/>
+                                    <field name="course_subject"
+                                           invisible="status not in ['class','exam','workshop']"/>
+                                    <field name="batch_class"
+                                           invisible="status not in ['class','exam','workshop']"/>
+                                    <field name="student_count"
+                                           invisible="status not in ['class','exam','workshop']"/>
+                                    <field name="is_occupied" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </div>
+                    </div>
+
+                    <!-- ── Section 3: Availability &amp; Notes ── -->
+                    <div class="lab_section_card">
+                        <div class="lab_section_header">
+                            <i class="fa fa-info-circle"/> &#160;Availability &amp; Special Notes
+                        </div>
+                        <div class="lab_section_body">
+                            <group>
+                                <group>
+                                    <field name="sharable"/>
+                                    <field name="booking_notice"/>
+                                </group>
+                                <group>
+                                    <field name="special_conditions" widget="text"/>
+                                    <field name="infra_issues" widget="text"/>
+                                </group>
+                            </group>
+                        </div>
+                    </div>
+
+                </sheet>
+
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════
+         LIST VIEW
+    ══════════════════════════════════════════════════════ -->
+    <record id="view_computer_lab_survey_list" model="ir.ui.view">
+        <field name="name">computer.lab.survey.list</field>
+        <field name="model">computer.lab.survey</field>
+        <field name="arch" type="xml">
+            <list string="Lab Surveys"
+                  decoration-success="state == 'reviewed'"
+                  decoration-info="state == 'submitted'">
+                <field name="lab_name"/>
+                <field name="college"/>
+                <field name="department"/>
+                <field name="incharge_name"/>
+                <field name="week_start_date"/>
+                <field name="week_end_date"/>
+                <field name="filled_slots"/>
+                <field name="free_slots"/>
+                <field name="utilization_pct" widget="percentage"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'reviewed'"
+                       decoration-info="state == 'submitted'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════
+         SEARCH VIEW
+    ══════════════════════════════════════════════════════ -->
+    <record id="view_computer_lab_survey_search" model="ir.ui.view">
+        <field name="name">computer.lab.survey.search</field>
+        <field name="model">computer.lab.survey</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="lab_name"/>
+                <field name="department"/>
+                <field name="college"/>
+                <field name="incharge_name"/>
+                <filter string="Draft" name="draft" domain="[('state','=','draft')]"/>
+                <filter string="Submitted" name="submitted" domain="[('state','=','submitted')]"/>
+                <filter string="Reviewed" name="reviewed" domain="[('state','=','reviewed')]"/>
+                <separator/>
+                <filter string="College" name="group_college" context="{'group_by': 'college'}"/>
+                <filter string="Department" name="group_department" context="{'group_by': 'department'}"/>
+                <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                <filter string="Academic Year" name="group_academic_year" context="{'group_by': 'academic_year'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════
+         KANBAN VIEW
+    ══════════════════════════════════════════════════════ -->
+    <record id="view_computer_lab_survey_kanban" model="ir.ui.view">
+        <field name="name">computer.lab.survey.kanban</field>
+        <field name="model">computer.lab.survey</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="lab_name"/>
+                <field name="college"/>
+                <field name="department"/>
+                <field name="filled_slots"/>
+                <field name="free_slots"/>
+                <field name="utilization_pct"/>
+                <field name="state"/>
+                <field name="week_start_date"/>
+                <field name="week_end_date"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="lab_kanban_card">
+                            <div class="lab_kanban_header">
+                                <span class="lab_kanban_title"><t t-esc="record.lab_name.value"/></span>
+                                <span t-if="record.state.raw_value == 'reviewed'" class="badge bg-success">
+                                    <t t-esc="record.state.value"/>
+                                </span>
+                                <span t-if="record.state.raw_value == 'submitted'" class="badge bg-info">
+                                    <t t-esc="record.state.value"/>
+                                </span>
+                                <span t-if="record.state.raw_value == 'draft'" class="badge bg-secondary">
+                                    <t t-esc="record.state.value"/>
+                                </span>
+                            </div>
+                            <div class="lab_kanban_college">
+                                <i class="fa fa-university"/> <t t-esc="record.college.value"/>
+                            </div>
+                            <div class="lab_kanban_dept">
+                                <i class="fa fa-tags"/> <t t-esc="record.department.value"/>
+                            </div>
+                            <div class="lab_kanban_stats">
+                                <div class="lab_kstat">
+                                    <span class="lab_kstat_val"><t t-esc="record.filled_slots.value"/></span>
+                                    <span class="lab_kstat_lbl">Filled</span>
+                                </div>
+                                <div class="lab_kstat">
+                                    <span class="lab_kstat_val"><t t-esc="record.free_slots.value"/></span>
+                                    <span class="lab_kstat_lbl">Free</span>
+                                </div>
+                                <div class="lab_kstat">
+                                    <span class="lab_kstat_val"><t t-esc="record.utilization_pct.value"/>%</span>
+                                    <span class="lab_kstat_lbl">Util.</span>
+                                </div>
+                            </div>
+                            <div class="lab_kanban_util_bar">
+                                <div class="lab_util_fill"
+                                     t-attf-style="width: #{record.utilization_pct.value}%"/>
+                            </div>
+                            <div class="lab_kanban_week">
+                                <i class="fa fa-calendar"/>
+                                <t t-esc="record.week_start_date.value"/> – <t t-esc="record.week_end_date.value"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- ACTION -->
+    <record id="action_computer_lab_survey" model="ir.actions.act_window">
+        <field name="name">Lab Utilization Surveys</field>
+        <field name="res_model">computer.lab.survey</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_computer_lab_survey_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first lab utilization survey!
+            </p>
+            <p>
+                Track weekly computer lab usage with slot-wise scheduling, utilization stats,
+                and cross-department availability management.
+            </p>
+        </field>
+    </record>
+
+</odoo>
